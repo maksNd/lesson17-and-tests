@@ -11,6 +11,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema
 import json
+from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -35,12 +36,15 @@ with db.session.begin():
 
 class RoleSchema(Schema):
     # TODO напишите схему здесь
-    pass
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
 
 
 def serialize():
     # TODO реализуйте сериализацию здесь
-    pass
+    role_schema = RoleSchema()
+    result = Role.query.get(1)
+    return role_schema.dump(result)
 
 
 if __name__ == "__main__":
