@@ -12,14 +12,14 @@
 #    получить сущность с соответствующим id
 
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 db = SQLAlchemy(app)
 
 
@@ -51,8 +51,22 @@ with db.session.begin():
 
 
 # TODO напишите Class Based Views здесь
+@note_ns.route('/')
+class NotesView(Resource):
+    def get(self):
+        all_notes = Note.query.all()
+        return notes_schema.dump(all_notes), 200
 
-# Для проверки работоспособности запустите фаил
+
+@note_ns.route('/<int:pk>')
+class NoteVew(Resource):
+    def get(self, pk):
+        note = Note.query.get(pk)
+        return note_schema.dump(note), 200
+
+    # Для проверки работоспособности запустите фаил
+
+
 # и сделайте GET-запрос на адреса:
 # - http://127.0.0.1/notes
 # - http://127.0.0.1/notes/1

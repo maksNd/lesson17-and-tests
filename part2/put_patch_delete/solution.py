@@ -66,7 +66,7 @@ class NoteView(Resource):
 
 if __name__ == '__main__':
     client = app.test_client()
-    # response = client.put('/notes/1', json=PUT)
+    response = client.put('/notes/1', json=PUT)
     # response = client.patch('/notes/1', json=PATCH)
     # response = client.delete('/notes/1')
     pprint(notes, indent=2)

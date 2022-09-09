@@ -6,8 +6,8 @@
 #   с помощью POST-запроса по адресу `/notes/` добавить
 #   в базу данных запись о соответствующем объекте
 
-from flask import Flask
-from flask_restx import Api
+from flask import Flask, request
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 from prettytable import prettytable
@@ -15,7 +15,7 @@ from prettytable import prettytable
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
 db = SQLAlchemy(app)
 
@@ -49,13 +49,23 @@ with db.session.begin():
 
 
 # TODO напишите Class Based View здесь
+@note_ns.route('/')
+class NoteView(Resource):
+    def post(self):
+        data = request.json
+        note = Note(**data)
+
+        with db.session.begin():
+            db.session.add(note)
+        return '', 201
 
 
 # # # # # # # # # # # #                                    # Не удаляйте этот код, он нужен для
-if __name__ == '__main__':                                 # имитации post-запроса и вывода
-    client = app.test_client()                             # результата в терминал
-    response = client.post('/notes/', json='')             # TODO для самопроверки вы можете добавить
-    session = db.session()                                 # свой json в соответствующий аргумент
+if __name__ == '__main__':  # имитации post-запроса и вывода
+    client = app.test_client()  # результата в терминал
+    response = client.post('/notes/', json={"text": "Опять заметка!",
+                                            "author": "me"})  # TODO для самопроверки вы можете добавить
+    session = db.session()  # свой json в соответствующий аргумент
     cursor = session.execute("SELECT * FROM note").cursor  # функции post
     mytable = prettytable.from_db_cursor(cursor)
     mytable.max_width = 30

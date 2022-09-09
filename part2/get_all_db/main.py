@@ -7,14 +7,14 @@
 #
 
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
 db = SQLAlchemy(app)
 
@@ -51,6 +51,11 @@ with db.session.begin():
 
 
 # TODO напишите Class Based View здесь
+@book_ns.route('/')
+class BooksView(Resource):
+    def get(self):
+        all_books = Book.query.all()
+        return books_schema.dump(all_books), 200
 
 
 # для проверки работоспособности запустите фаил

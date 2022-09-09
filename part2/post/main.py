@@ -19,14 +19,15 @@
 #  "author": "Кто ты?"
 # }
 
-from flask import Flask
+from flask import Flask, request
+from flask_restx import Api, Resource
 from pprint import pprint
 
 app = Flask(__name__)
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
-api = # TODO допишите код
-note_ns = # TODO допишите код
+api = Api(app)  # TODO допишите код
+note_ns = api.namespace('notes')  # TODO допишите код
 
 notes = [
     {
@@ -41,12 +42,19 @@ notes = [
     }
 ]
 
+
 # TODO напишите Class Based View
-                                                
-     
-                                                # Не удаляйте этот код, он нужен для
-if __name__ == '__main__':                      # имитации post-запроса и вывода
-    client = app.test_client()                  # результата в терминал
+@note_ns.route('/')
+class NoteView(Resource):
+    def post(self):
+        data = request.json
+        notes.append(data)
+        return '', 201
+
+
+# Не удаляйте этот код, он нужен для
+if __name__ == '__main__':  # имитации post-запроса и вывода
+    client = app.test_client()  # результата в терминал
     response = client.post('/notes/', json={})  # TODO для самопроверки вы можете добавить
-    pprint(notes, indent=2)                     # свой json в соответствующий аргумент
-                                                # функции post
+    pprint(notes, indent=2)  # свой json в соответствующий аргумент
+    # функции post

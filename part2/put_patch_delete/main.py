@@ -21,17 +21,23 @@
 # - С помощью DELETE-запроса на адрес `/notes/1`
 #   удалить данные о сущности с соответсвующим id
 
-from flask import Flask
-from flask_restx import Api
+from flask import Flask, request
+from flask_restx import Api, Resource
 from pprint import pprint
+
+PUT = {
+    "author": "Not me",
+    "text": "New Note"
+}
+
+PATCH = {"text": "Note, that newer then last one"}
 
 app = Flask(__name__)
 
-api = Api(app)
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
-api = # TODO допишите код
-note_ns = # TODO допишите код
+api = Api(app)  # TODO допишите код
+note_ns = api.namespace('notes')  # TODO допишите код
 
 notes = {
     1: {
@@ -46,23 +52,40 @@ notes = {
     }
 }
 
+
 # TODO Допишите Class Based View здесь
-# @ 
-# class ...
-#     def put(self, uid):
-#         pass
+@note_ns.route('/<int:uid>')
+class NoteView(Resource):
+    def put(self, uid):
+        if uid not in notes:
+            return '', 404
 
-#     def patch(self, uid):
-#         pass
+        requested_data = request.json
+        notes[uid]['text'] = requested_data.get('text')
+        notes[uid]['author'] = requested_data.get('author')
+        return '', 204
 
-#     def delete(self, uid):
-#         pass
+    def patch(self, uid):
+        if uid not in notes:
+            return '', 404
+        requested_data = request.json
+        if 'text' in requested_data:
+            notes[uid]['text'] = requested_data.get('text')
+        if 'author' in requested_data:
+            notes[uid]['author'] = requested_data.get('author')
+
+    def delete(self, uid):
+        if uid not in notes:
+            return '', 404
+
+        del notes[uid]
+        return '', 204
 
 
-# # # # # # # # # # # #                                    
+# # # # # # # # # # # #
 if __name__ == '__main__':
-    client = app.test_client()                          # TODO вы можете раскомментировать
-    # response = client.put('/notes/1', json=PUT)       # соответсвующе функции и
-    # response = client.patch('/notes/1', json=PATCH)   # воспользоваться ими для самопроверки
-    # response = client.delete('/notes/1')              # аналогично заданию `post`
+    client = app.test_client()  # TODO вы можете раскомментировать
+    # response = client.put('/notes/1', json=PUT)  # соответсвующе функции и
+    # response = client.patch('/notes/1', json=PATCH)  # воспользоваться ими для самопроверки
+    response = client.delete('/notes/1')              # аналогично заданию `post`
     pprint(notes, indent=2)
